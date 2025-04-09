@@ -1,1 +1,4 @@
 /Manifest.toml
+*.h5
+*.vtu
+*.vtm

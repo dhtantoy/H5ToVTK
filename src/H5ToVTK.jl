@@ -20,13 +20,22 @@ function h5tovtk(filename::String, groups::Vector{String}; coords_tag::String="c
     vtm = vtk_multiblock(filename)
     for grp in groups
         block = multiblock_add_block(vtm, filename * "_" * grp)
-        coords = read(fid, grp * "/" * coords_tag)
-        topo_obj = fid[grp*"/"*topo_tag]
+        h5_grp = fid[grp]
+        coords = read(h5_grp, coords_tag) 
+        topo_obj = h5_grp[topo_tag]
         single_cell_type = convert_cell_type(read(topo_obj["celltype"]))
         cells = map(eachcol(read(topo_obj))) do v
             MeshCell(single_cell_type, v .+ 1)
         end
-        vtk_grid(block, coords, cells)
+        if haskey(h5_grp, "values")
+            vals = read(h5_grp, "values")
+            map(unique(vals)) do dif_v 
+                ids = findall(==(dif_v), vals)
+                vtk_grid(block, coords, cells[ids])
+            end
+        else 
+            vtk_grid(block, coords, cells)
+        end
     end
     close(vtm)
     return nothing
