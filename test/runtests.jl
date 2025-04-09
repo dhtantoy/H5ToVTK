@@ -1,6 +1,5 @@
 using H5ToVTK
-using Test
 
-@testset "H5ToVTK.jl" begin
-    # Write your tests here.
-end
+filename = "colin27_coarse_boundaries"
+grps = ["mesh", "boundaries"]
+h5tovtk(filename, grps)
